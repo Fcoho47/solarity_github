@@ -1,9 +1,11 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `Solarity`.`gdp_semanal`(
-    IN _plantas VARCHAR(255)
+CREATE DEFINER=nencina@% PROCEDURE Solarity.gdp_semanal(
+    IN _plantas VARCHAR(1024),
+    IN _fecha_inicio DATE,
+    IN _fecha_fin DATE
 )
 BEGIN
     -- Eliminar las tablas temporales si ya existen
-    DROP TEMPORARY TABLE IF EXISTS metricos;
+    DROP TEMPORARY TABLE IF EXISTS metricos_test;
     DROP TEMPORARY TABLE IF EXISTS desglose_perdidas;
 
     -- Crear la tabla temporal desglose_perdidas
@@ -49,9 +51,10 @@ BEGIN
         ON
             pg.id_planta = pdp.id_planta
             AND pg.fecha = pdp.fecha
-        WHERE 
+        WHERE
             FIND_IN_SET(pg.id_planta, _plantas)
             AND pg.valorTeorico IS NOT NULL
+            AND pg.fecha BETWEEN _fecha_inicio AND _fecha_fin
     ) AS subquery;
 
     -- Agregar la columna total y actualizarla
@@ -61,7 +64,7 @@ BEGIN
     SET total = valorTeorico - (unavailable + soiling + clipping + indeterminado);
 
     -- Utilizar CTE para cálculos y crear una tabla temporal metricos
-    CREATE TEMPORARY TABLE metricos AS
+    CREATE TEMPORARY TABLE metricos_test AS
     WITH CTE_metrico AS (
         SELECT
             fecha,
@@ -100,7 +103,7 @@ BEGIN
     GROUP BY semana;
 
     -- Actualizar los valores de la tabla dividiendo por la suma total
-    UPDATE metricos
+    UPDATE metricos_test
     SET 
         cleanliness = ROUND( (cleanliness * 100)/suma_total, 1),
         curtailment = ROUND( (curtailment * 100)/suma_total, 1),
@@ -109,6 +112,6 @@ BEGIN
         cumplimiento_adj = ROUND( (cumplimiento_adj * 100)/suma_total, 1);
 
     -- Seleccionar los resultados finales
-    SELECT * FROM metricos;
+    SELECT * FROM metricos_test;
 
-END;
+END

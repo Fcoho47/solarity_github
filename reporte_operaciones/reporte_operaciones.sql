@@ -8,7 +8,6 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `Solarity`.`test_ReporteOperaciones`
 BEGIN
     DECLARE energiaFaltante FLOAT DEFAULT 0;
     DECLARE energiaProyectadaTotal DECIMAL(15,3) DEFAULT 0; -- Variable para capturar el valor de salida
-    DECLARE aporteIndisponibilidad FLOAT DEFAULT 0;
     DECLARE defaultSoilingLevel FLOAT DEFAULT 0.075;
     DECLARE _finCorregido DATE DEFAULT IF(_fin >= CURRENT_DATE(), DATE_SUB(CURRENT_DATE(), INTERVAL 1 SECOND), _fin);
     DECLARE filtroIncidencias VARCHAR(64) DEFAULT IF (_filtroIncidencias = 'Todas', 1, 0);
@@ -68,7 +67,7 @@ BEGIN
                 ELSE "< 85 %"
             END AS "Nivel de Disponibilidad",
             100 * (generacion_proyectada - generacion_real) / energiaProyectadaTotal as "Impacto incumplimiento",
-            100 * (aporte_indisponibilidad / aporteIndisponibilidad) as "Impacto indisponibilidad",
+            impacto_indisponibilidad as "Impacto indisponibilidad",
             (cotaInferiorDisp + cotaSuperioDisp)/2 as "Disponibilidad",
             cotaInferiorDisp as "Disponibilidad Ajustada",
             cotaSuperioDisp as "Disponibilidad Estimada",

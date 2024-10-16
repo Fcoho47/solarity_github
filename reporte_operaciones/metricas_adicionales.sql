@@ -23,6 +23,10 @@ BEGIN
 
     DECLARE temp_dataPresente FLOAT DEFAULT 0;
 
+    DECLARE aporteIndispPlanta FLOAT DEFAULT 0;
+    DECLARE aporteIndisponibilidad FLOAT DEFAULT 0;
+
+
     -- Define el cursor
     DECLARE cursor_plantas CURSOR FOR 
         SELECT id_planta, potencia, inicio_generacion, API 
@@ -89,6 +93,14 @@ BEGIN
             SELECT 1 INTO temp_dataPresente;
         END IF;
 
+        IF (periodoDias > 0) THEN
+            SET aporteIndispPlanta = (1 - (temp_cotaSuperioDisp + temp_cotaInferiorDisp)/2.0)*planta_potencia*periodoDias;
+        END IF;
+
+        IF (temp_cotaInferiorDisp IS NOT NULL) THEN
+            SET aporteIndisponibilidad = aporteIndisponibilidad + planta_potencia*periodoDias;
+        END IF;
+
         -- Actualizar la tabla temporal con las métricas adicionales
         UPDATE tmp_reporte_operaciones
         SET
@@ -104,7 +116,8 @@ BEGIN
             aporteDispPotenciaTiempo = periodoDias * planta_potencia * (temp_cotaSuperioDisp + temp_cotaInferiorDisp) / (2 * 1000),
             aporteErrorDispPotenciaTiempo = periodoDias * planta_potencia * (temp_cotaSuperioDisp - temp_cotaInferiorDisp) / (2 * 1000),
             aporte_denominador_capacity_factor = periodoDias * 24 * temp_potenciaACvar,
-            data_presente = temp_dataPresente
+            data_presente = temp_dataPresente, 
+            impacto_indisponibilidad = 100 * (aporteIndispPlanta / aporteIndisponibilidad)
         WHERE id_planta = planta_id;
 
     END LOOP;
