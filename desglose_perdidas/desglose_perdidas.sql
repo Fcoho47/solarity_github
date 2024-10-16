@@ -12,7 +12,10 @@ BEGIN
     -- Crear la tabla temporal desglose_perdidas
     CREATE TEMPORARY TABLE desglose_perdidas AS
     SELECT *,
+
+        -- Calculamos resource
         (COALESCE(valorTeorico, 0) - COALESCE(AOP, 0) - COALESCE(soiling_ppto, 0) - COALESCE(unavailable_ppto, 0) - COALESCE(curtailment_ppto, 0)) AS resource,
+
         (COALESCE(valorTeorico, 0) - (COALESCE(unavailable, 0) + COALESCE(soiling, 0) + COALESCE(clipping, 0)) - COALESCE(valor_lectura, 0)) AS indeterminado,
         
         (COALESCE(unavailable_ppto, 0) / COALESCE(NULLIF(AOP + soiling_ppto, 0), 1)) * valorTeorico AS PPTO_adj_unavailable,
@@ -85,7 +88,10 @@ BEGIN
             indeterminado / NULLIF(PPTO_adj_AOP, 0) AS daily_undetermined,
 
             -- Cálculo de cumplimiento ajustado
-            total / NULLIF(PPTO_adj_AOP, 0) AS daily_cumplimiento_adj       
+            total / NULLIF(PPTO_adj_AOP, 0) AS daily_cumplimiento_adj,
+
+            -- Cálculo de resource
+            resource AS daily_resource
         FROM desglose_perdidas
     )
     SELECT
@@ -101,11 +107,13 @@ BEGIN
         SUM(daily_unavailability) AS unavailability,
         SUM(daily_undetermined) AS undetermined,
         SUM(daily_cumplimiento_adj) AS cumplimiento_adj,
+        
+        SUM(daily_resource) AS resource,
 
         SUM(daily_cleanliness) + SUM(daily_curtailment) + SUM(daily_unavailability) + SUM(daily_undetermined) + SUM(daily_cumplimiento_adj) AS suma_total
 
     FROM CTE_metrico
-    GROUP BY periodo; -- Agrupar por la columna calculada
+    GROUP BY periodo;
 
     -- Actualizar los valores de la tabla dividiendo por la suma total
     UPDATE metricos_test
@@ -114,7 +122,8 @@ BEGIN
         curtailment = ROUND( (curtailment * 100)/suma_total, 1),
         unavailability = ROUND( (unavailability * 100)/suma_total, 1),
         undetermined = ROUND( (undetermined * 100)/suma_total, 1),
-        cumplimiento_adj = ROUND( (cumplimiento_adj * 100)/suma_total, 1);
+        cumplimiento_adj = ROUND( (cumplimiento_adj * 100)/suma_total, 1),
+        resource = ROUND( (resource), 1);
 
     -- Seleccionar los resultados finales
     SELECT * FROM metricos_test;
