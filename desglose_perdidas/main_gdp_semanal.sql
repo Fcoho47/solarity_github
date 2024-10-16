@@ -1,7 +1,8 @@
-CREATE DEFINER=nencina@% PROCEDURE Solarity.gdp_semanal(
+CREATE DEFINER=`root`@`localhost` PROCEDURE `Solarity`.`desglose_perdidas`(
     IN _plantas VARCHAR(1024),
     IN _fecha_inicio DATE,
-    IN _fecha_fin DATE
+    IN _fecha_fin DATE,
+    IN _agrupacion VARCHAR(10)  -- 'diaria', 'semanal', o 'mensual'
 )
 BEGIN
     -- Eliminar las tablas temporales si ya existen
@@ -88,8 +89,12 @@ BEGIN
         FROM desglose_perdidas
     )
     SELECT
-    	-- Calcular el inicio de la semana
-        DATE_SUB(fecha, INTERVAL WEEKDAY(fecha) DAY) AS semana, 
+        -- Modificar la agrupación según el nuevo parámetro
+        CASE 
+            WHEN _agrupacion = 'mensual' THEN DATE_FORMAT(fecha, '%Y-%m-01')  -- Agrupar por mes
+            WHEN _agrupacion = 'diaria' THEN fecha  -- Agrupar por día
+            ELSE DATE_SUB(fecha, INTERVAL WEEKDAY(fecha) DAY)  -- Agrupar por semana
+        END AS periodo,
 
         SUM(daily_cleanliness) AS cleanliness,
         SUM(daily_curtailment) AS curtailment,
@@ -100,7 +105,7 @@ BEGIN
         SUM(daily_cleanliness) + SUM(daily_curtailment) + SUM(daily_unavailability) + SUM(daily_undetermined) + SUM(daily_cumplimiento_adj) AS suma_total
 
     FROM CTE_metrico
-    GROUP BY semana;
+    GROUP BY periodo; -- Agrupar por la columna calculada
 
     -- Actualizar los valores de la tabla dividiendo por la suma total
     UPDATE metricos_test
