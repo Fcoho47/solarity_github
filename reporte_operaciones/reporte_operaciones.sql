@@ -11,6 +11,7 @@ BEGIN
     DECLARE defaultSoilingLevel FLOAT DEFAULT 0.075;
     DECLARE _finCorregido DATE DEFAULT IF(_fin >= CURRENT_DATE(), DATE_SUB(CURRENT_DATE(), INTERVAL 1 SECOND), _fin);
     DECLARE filtroIncidencias VARCHAR(64) DEFAULT IF (_filtroIncidencias = 'Todas', 1, 0);
+    DECLARE aporteIndisponibilidad FLOAT DEFAULT 0;
 
     -- Crear tabla temporal
     CALL test_crearTablaTemporalInsertarDatos(_plantas);
@@ -18,7 +19,7 @@ BEGIN
     -- Calcular la generación total, capturando el valor de energía proyectada total
     CALL test_calcularGeneracionTotal(_inicio, _finCorregido, energiaProyectadaTotal);
      
-    CALL test_calcularMetricasAdicionales(_inicio, _finCorregido);
+    CALL test_calcularMetricasAdicionales(_inicio, _finCorregido, aporteIndisponibilidad);
 
     -- Generar reporte final
     IF _agrupamiento = 'cliente' THEN
@@ -67,7 +68,7 @@ BEGIN
                 ELSE "< 85 %"
             END AS "Nivel de Disponibilidad",
             100 * (generacion_proyectada - generacion_real) / energiaProyectadaTotal as "Impacto incumplimiento",
-            impacto_indisponibilidad as "Impacto indisponibilidad",
+            impacto_indisponibilidad/aporteIndisponibilidad as "Impacto indisponibilidad",
             (cotaInferiorDisp + cotaSuperioDisp)/2 as "Disponibilidad",
             cotaInferiorDisp as "Disponibilidad Ajustada",
             cotaSuperioDisp as "Disponibilidad Estimada",

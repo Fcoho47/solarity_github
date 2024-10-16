@@ -1,6 +1,7 @@
 CREATE DEFINER=`root`@`localhost` PROCEDURE `Solarity`.`test_calcularMetricasAdicionales`(
     IN _inicio DATETIME, 
-    IN _fin DATETIME
+    IN _fin DATETIME,
+    OUT _output_aporteIndisponibilidad FLOAT
 )
 BEGIN
 	-- Definición de variables
@@ -24,7 +25,7 @@ BEGIN
     DECLARE temp_dataPresente FLOAT DEFAULT 0;
 
     DECLARE aporteIndispPlanta FLOAT DEFAULT 0;
-    DECLARE aporteIndisponibilidad FLOAT DEFAULT 0;
+    DECLARE temp_aporteIndisponibilidad FLOAT DEFAULT 0;
 
 
     -- Define el cursor
@@ -98,7 +99,7 @@ BEGIN
         END IF;
 
         IF (temp_cotaInferiorDisp IS NOT NULL) THEN
-            SET aporteIndisponibilidad = aporteIndisponibilidad + planta_potencia*periodoDias;
+            SET temp_aporteIndisponibilidad = temp_aporteIndisponibilidad + planta_potencia*periodoDias;
         END IF;
 
         -- Actualizar la tabla temporal con las métricas adicionales
@@ -117,10 +118,12 @@ BEGIN
             aporteErrorDispPotenciaTiempo = periodoDias * planta_potencia * (temp_cotaSuperioDisp - temp_cotaInferiorDisp) / (2 * 1000),
             aporte_denominador_capacity_factor = periodoDias * 24 * temp_potenciaACvar,
             data_presente = temp_dataPresente, 
-            impacto_indisponibilidad = 100 * (aporteIndispPlanta / aporteIndisponibilidad)
+            impacto_indisponibilidad = 100 * aporteIndispPlanta
         WHERE id_planta = planta_id;
 
     END LOOP;
+   
+    SET _output_aporteIndisponibilidad = temp_aporteIndisponibilidad;
 
     CLOSE cursor_plantas;
 END
