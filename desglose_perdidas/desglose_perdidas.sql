@@ -97,9 +97,9 @@ BEGIN
     SELECT
         -- Modificar la agrupación según el nuevo parámetro
         CASE 
-            WHEN _agrupacion = 'mensual' THEN DATE_FORMAT(fecha, '%Y-%m-01')  -- Agrupar por mes
-            WHEN _agrupacion = 'diaria' THEN fecha  -- Agrupar por día
-            ELSE DATE_SUB(fecha, INTERVAL WEEKDAY(fecha) DAY)  -- Agrupar por semana
+            WHEN _agrupacion = 'mensual' THEN STR_TO_DATE(DATE_FORMAT(fecha, '%Y-%m-01'), '%Y-%m-%d')
+            WHEN _agrupacion = 'diaria' THEN fecha
+            ELSE STR_TO_DATE(DATE_FORMAT(DATE_SUB(fecha, INTERVAL WEEKDAY(fecha) DAY), '%Y-%m-%d'), '%Y-%m-%d') 
         END AS periodo,
 
         SUM(daily_cleanliness) AS cleanliness,
@@ -123,7 +123,7 @@ BEGIN
         unavailability = ROUND( (unavailability * 100)/suma_total, 1),
         undetermined = ROUND( (undetermined * 100)/suma_total, 1),
         cumplimiento_adj = ROUND( (cumplimiento_adj * 100)/suma_total, 1),
-        resource = ROUND( (resource), 1);
+        resource = ROUND(resource, 1);
 
     -- Seleccionar los resultados finales
     SELECT * FROM metricos_test;
