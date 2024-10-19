@@ -38,7 +38,8 @@ BEGIN
         aporteDispPotenciaTiempo FLOAT,
         aporteErrorDispPotenciaTiempo FLOAT,
         aporte_denominador_capacity_factor FLOAT,
-        delta_ghi FLOAT
+        delta_ghi FLOAT,
+        impacto_indisponibilidad FLOAT
     );
 
     INSERT INTO tmp_reporte_operaciones
@@ -52,7 +53,7 @@ BEGIN
         longitud,
         potencia,
         inicioGeneracion,
-        0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+        0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
     FROM planta
     LEFT JOIN cliente ON planta.id_cliente = cliente.id
     WHERE 
