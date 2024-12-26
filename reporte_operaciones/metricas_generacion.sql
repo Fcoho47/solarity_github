@@ -1,4 +1,4 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `Solarity`.`test_calcularGeneracionTotal`(
+CREATE DEFINER=`root`@`localhost` PROCEDURE `Solarity`.`calcularGeneracionTotal`(
     IN _inicio DATETIME, 
     IN _fin DATETIME,
     OUT _energiaProyectadaTotal DECIMAL(15,3)

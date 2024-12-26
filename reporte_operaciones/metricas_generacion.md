@@ -1,8 +1,8 @@
-# Documentación del Procedimiento Almacenado: `test_calcularGeneracionTotal`
+# Documentación del Procedimiento Almacenado: `calcularGeneracionTotal`
 
 ## Descripción General
 
-El procedimiento almacenado `test_calcularGeneracionTotal` se encarga de calcular las métricas de generación de energía real y proyectada para un conjunto de plantas solares en un rango de fechas especificado. Actualiza una tabla temporal con los valores calculados y devuelve el total de la energía proyectada como un valor de salida.
+El procedimiento almacenado `calcularGeneracionTotal` se encarga de calcular las métricas de generación de energía real y proyectada para un conjunto de plantas solares en un rango de fechas especificado. Actualiza una tabla temporal con los valores calculados y devuelve el total de la energía proyectada como un valor de salida.
 
 ### Características Principales:
 - **Cálculo de Generación**: Calcula la generación total real y proyectada de energía para cada planta.

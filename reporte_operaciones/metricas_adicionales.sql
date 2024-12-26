@@ -1,4 +1,4 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `Solarity`.`test_calcularMetricasAdicionales`(
+CREATE DEFINER=`root`@`localhost` PROCEDURE `Solarity`.`calcularMetricasAdicionales`(
     IN _inicio DATETIME, 
     IN _fin DATETIME,
     OUT _output_aporteIndisponibilidad FLOAT

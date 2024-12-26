@@ -1,8 +1,8 @@
-# Documentación del Procedimiento Almacenado: `test_ReporteOperaciones`
+# Documentación del Procedimiento Almacenado: `ReporteOperaciones`
 
 ## Descripción General
 
-El procedimiento almacenado `test_ReporteOperaciones`, parte de la base de datos `Solarity`, genera reportes operacionales basados en criterios de filtrado y agrupamiento especificados. Calcula métricas de generación de energía para plantas solares, proporcionando reportes detallados ya sea por cliente o por planta. El procedimiento procesa y agrega datos relacionados con la generación de energía, métricas de cumplimiento y disponibilidad.
+El procedimiento almacenado `ReporteOperaciones`, parte de la base de datos `Solarity`, genera reportes operacionales basados en criterios de filtrado y agrupamiento especificados. Calcula métricas de generación de energía para plantas solares, proporcionando reportes detallados ya sea por cliente o por planta. El procedimiento procesa y agrega datos relacionados con la generación de energía, métricas de cumplimiento y disponibilidad.
 
 ### Características Principales:
 - **Agrupamiento Personalizado**: Soporta la agrupación de los resultados por `cliente` o por `planta`.
@@ -33,11 +33,11 @@ El procedimiento almacenado `test_ReporteOperaciones`, parte de la base de datos
 
 ## Descripción del Procedimiento
 
-1. **Creación de Tabla Temporal**: Se llama al procedimiento `test_crearTablaTemporalInsertarDatos` para crear una tabla temporal que almacenará los datos de las plantas especificadas en el parámetro `_plantas`.
+1. **Creación de Tabla Temporal**: Se llama al procedimiento `crearTablaTemporalInsertarDatos` para crear una tabla temporal que almacenará los datos de las plantas especificadas en el parámetro `_plantas`.
   
-2. **Cálculo de Generación Total**: Utiliza el procedimiento `test_calcularGeneracionTotal` para calcular las métricas de generación de energía dentro del rango de fechas.
+2. **Cálculo de Generación Total**: Utiliza el procedimiento `calcularGeneracionTotal` para calcular las métricas de generación de energía dentro del rango de fechas.
 
-3. **Cálculo de Métricas Adicionales**: Llama a `test_calcularMetricasAdicionales` para calcular métricas adicionales como el factor de planta y la radiación incidente.
+3. **Cálculo de Métricas Adicionales**: Llama a `calcularMetricasAdicionales` para calcular métricas adicionales como el factor de planta y la radiación incidente.
 
 4. **Generación del Reporte**: Dependiendo del valor de `_agrupamiento`, se generará uno de los siguientes reportes:
    - **Por Cliente**: Agrupa los datos por cliente y calcula la potencia total instalada, la generación real y proyectada, el factor de planta (FP), el cumplimiento, el impacto del incumplimiento, y el porcentaje de datos presentes.

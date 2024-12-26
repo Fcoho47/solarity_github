@@ -1,4 +1,4 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `Solarity`.`test_ReporteOperaciones`(
+CREATE DEFINER=`root`@`localhost` PROCEDURE `Solarity`.`ReporteOperaciones`(
     IN _agrupamiento VARCHAR(32), 
     IN _inicio DATETIME, 
     IN _fin DATETIME, 
@@ -6,6 +6,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `Solarity`.`test_ReporteOperaciones`
     IN _filtroIncidencias VARCHAR(64)
 )
 BEGIN
+    -- Definir variables útiles
     DECLARE energiaFaltante FLOAT DEFAULT 0;
     DECLARE energiaProyectadaTotal DECIMAL(15,3) DEFAULT 0; -- Variable para capturar el valor de salida
     DECLARE defaultSoilingLevel FLOAT DEFAULT 0.075;
@@ -14,12 +15,13 @@ BEGIN
     DECLARE aporteIndisponibilidad FLOAT DEFAULT 0;
 
     -- Crear tabla temporal
-    CALL test_crearTablaTemporalInsertarDatos(_plantas);
+    CALL crear_insert_init(_plantas);
 
-    -- Calcular la generación total, capturando el valor de energía proyectada total
-    CALL test_calcularGeneracionTotal(_inicio, _finCorregido, energiaProyectadaTotal);
+    -- Calcular los métricas de generación
+    CALL calcularGeneracionTotal(_inicio, _finCorregido, energiaProyectadaTotal);
      
-    CALL test_calcularMetricasAdicionales(_inicio, _finCorregido, aporteIndisponibilidad);
+     -- Calcular las métricas de disponibilidad
+    CALL calcularMetricasAdicionales(_inicio, _finCorregido, aporteIndisponibilidad);
 
     -- Generar reporte final
     IF _agrupamiento = 'cliente' THEN

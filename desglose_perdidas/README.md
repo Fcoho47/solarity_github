@@ -1,54 +1,54 @@
-# Procedimiento Almacenado: `gdp_semanal`
+# Procedimiento Almacenado: `desglose_perdidas`
 
 ## Descripción
 
-El procedimiento `gdp_semanal` calcula y genera métricas semanales relacionadas con la generación de energía de plantas solares. Este procedimiento toma como entrada una lista de plantas y devuelve métricas ajustadas que se basan en diversas variables relacionadas con la generación, pérdidas y otros factores.
+El procedimiento `desglose_perdidas` calcula y genera métricas relacionadas con las pérdidas y recursos disponibles en plantas solares, basándose en las proyecciones de generación y lecturas reales. El procedimiento permite agrupar los resultados por periodos diarios, semanales o mensuales según el parámetro de entrada.
 
 ## Parámetros de Entrada
 
-- **_plantas (VARCHAR(255))**: Cadena que contiene los identificadores de las plantas (separados por comas) para las cuales se desean calcular las métricas semanales.
+- **_plantas (VARCHAR(1024))**: Cadena que contiene los identificadores de las plantas (separados por comas) para las cuales se realizarán los cálculos.
+- **_fecha_inicio (DATE)**: Fecha de inicio del periodo para el cual se realizarán los cálculos.
+- **_fecha_fin (DATE)**: Fecha de fin del periodo para el cual se realizarán los cálculos.
+- **_agrupacion (VARCHAR(10))**: Tipo de agrupación para los resultados (`'diaria'`, `'semanal'` o `'mensual'`).
 
 ## Proceso
 
-1. **Eliminación de Tablas Temporales**: Se eliminan las tablas temporales `metricos` y `desglose_perdidas` si ya existen, para garantizar que se creen nuevas tablas.
+1. **Eliminación de Tablas Temporales**:
+   - Se eliminan las tablas temporales `metricos_test` y `desglose_perdidas` si ya existen, para garantizar que se creen nuevas tablas.
 
 2. **Creación de Tabla Temporal `desglose_perdidas`**:
-   - Se calcula el desglose de las pérdidas a partir de la proyección de generación y las lecturas de las plantas.
-   - Se realizan cálculos para determinar la cantidad de recursos disponibles, pérdidas por indisponibilidad, soiling, y curtailment, ajustando estos valores según los parámetros de entrada.
+   - Se calcula el desglose de las pérdidas basado en los valores teóricos, lecturas reales y factores de ajuste como soiling, indisponibilidad y curtailment.
+   - Los cálculos incluyen:
+     - **`resource`**: Recursos disponibles ajustados.
+     - **`indeterminado`**: Pérdidas que no se pueden categorizar.
+     - Ajustes de indisponibilidad, soiling, curtailment y AOP basados en valores teóricos y proyectados.
 
-3. **Actualización de la Tabla `desglose_perdidas`**:
-   - Se agrega una columna `total` que se actualiza con el total de generación menos las pérdidas.
+3. **Creación de Tabla Temporal `metricos_test`**:
+   - Se utiliza una CTE (expresión de tabla común) para realizar cálculos detallados sobre métricas diarias.
+   - Las métricas se agrupan por el tipo de periodo especificado en el parámetro `_agrupacion` (diario, semanal o mensual).
 
-4. **Creación de Tabla Temporal `metricos`**:
-   - Se utiliza una expresión de tabla común (CTE) para calcular varias métricas diarias, incluyendo limpieza, curtailment, indisponibilidad e indeterminado.
-   - Se agrupan las métricas por semana.
+4. **Actualización de Métricas**:
+   - Los valores calculados (limpieza, curtailment, indisponibilidad, indeterminado, cumplimiento ajustado) se ajustan y convierten a porcentajes respecto al total de generación.
 
-5. **Actualización de Métricas**:
-   - Se actualizan las métricas de la tabla `metricos` dividiendo por la suma total para obtener porcentajes ajustados.
-
-6. **Selección de Resultados Finales**:
-   - Se seleccionan y devuelven todos los resultados de la tabla `metricos`.
+5. **Selección de Resultados Finales**:
+   - Los resultados ajustados se seleccionan de la tabla `metricos_test`.
 
 ## Resultados
 
 El procedimiento devolverá un conjunto de resultados que incluye las siguientes columnas:
 
-- **semana**: La fecha correspondiente al inicio de la semana (lunes) en que se calcularon las métricas.
-  
-- **cleanliness**: Porcentaje de limpieza ajustado de la planta, calculado como la diferencia entre el soiling real y el soiling proyectado, dividido por el AOP ajustado. Este valor indica la eficiencia de la limpieza en la generación de energía.
-
-- **curtailment**: Porcentaje de curtailment ajustado, que refleja la cantidad de generación que no se pudo realizar debido a limitaciones operativas, calculado en relación al AOP ajustado.
-
-- **unavailability**: Porcentaje de indisponibilidad ajustado, que representa el tiempo en que la planta no estuvo operativa, ajustado según los valores teóricos de generación.
-
-- **undetermined**: Porcentaje de pérdidas indeterminadas ajustadas, que engloba las pérdidas que no se pueden categorizar en los tipos previamente definidos.
-
-- **cumplimiento_adj**: Porcentaje de cumplimiento ajustado, que mide el rendimiento general de la planta en comparación con las expectativas de generación, ajustado por los factores de pérdidas.
-
+- **periodo**: Fecha correspondiente al periodo (diario, semanal o mensual) según el parámetro `_agrupacion`.
+- **cleanliness**: Porcentaje de limpieza ajustado, basado en las diferencias entre los valores proyectados y reales.
+- **curtailment**: Porcentaje de curtailment ajustado, indicando la generación perdida debido a limitaciones operativas.
+- **unavailability**: Porcentaje de indisponibilidad ajustado, representando el tiempo que las plantas no estuvieron operativas.
+- **undetermined**: Porcentaje de pérdidas indeterminadas ajustadas, que agrupan pérdidas no categorizadas.
+- **cumplimiento_adj**: Porcentaje de cumplimiento ajustado, que refleja el rendimiento de la planta considerando los factores de ajuste.
+- **resource**: Porcentaje de recursos disponibles ajustados.
+- **suma_total**: Suma total de las métricas calculadas, utilizada para normalizar los resultados.
 
 ## Consultas de Ejemplo
 
 Para llamar al procedimiento, se puede usar el siguiente comando SQL:
 
 ```sql
-CALL Solarity.gdp_semanal('1,2,3');
+CALL Solarity.desglose_perdidas('1,2,3', '2024-01-01', '2024-12-31', 'semanal');

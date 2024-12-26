@@ -1,8 +1,8 @@
-# Documentación del Procedimiento Almacenado: `test_calcularMetricasAdicionales`
+# Documentación del Procedimiento Almacenado: `calcularMetricasAdicionales`
 
 ## Descripción General
 
-El procedimiento almacenado `test_calcularMetricasAdicionales` tiene como objetivo calcular métricas adicionales relacionadas con la disponibilidad, la potencia afectada y la indisponibilidad de las plantas solares en un período de tiempo determinado. Los resultados se utilizan para actualizar la tabla temporal `tmp_reporte_operaciones` con información detallada sobre el rendimiento y la operación de cada planta.
+El procedimiento almacenado `calcularMetricasAdicionales` tiene como objetivo calcular métricas adicionales relacionadas con la disponibilidad, la potencia afectada y la indisponibilidad de las plantas solares en un período de tiempo determinado. Los resultados se utilizan para actualizar la tabla temporal `tmp_reporte_operaciones` con información detallada sobre el rendimiento y la operación de cada planta.
 
 ### Características Principales:
 - **Cálculo de Disponibilidad**: Calcula la disponibilidad de los equipos para cada planta, junto con las cotas superior e inferior de la disponibilidad.

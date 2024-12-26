@@ -1,9 +1,10 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `Solarity`.`test_crearTablaTemporalInsertarDatos`(
+CREATE DEFINER=`root`@`localhost` PROCEDURE `Solarity`.`crear_insert_init`(
     IN _plantas VARCHAR(1024)
 )
 BEGIN
     DROP TEMPORARY TABLE IF EXISTS tmp_reporte_operaciones;
         
+    -- Crear tabla temporal con las columnas necesarias
     CREATE TEMPORARY TABLE tmp_reporte_operaciones(
         id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
         planta VARCHAR(256) NOT NULL,
@@ -42,6 +43,7 @@ BEGIN
         impacto_indisponibilidad FLOAT
     );
 
+    -- Insertar datos en la tabla temporal
     INSERT INTO tmp_reporte_operaciones
     SELECT
         NULL,
